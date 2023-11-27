@@ -47,6 +47,10 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('H/5 * * * *') // Poll SCM every 5 minutes
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -66,11 +70,26 @@ pipeline {
         }      
     }
 }
-
+post {
+        success {
+            echo 'Deployment successful!'
+            // Send success email notification
+            emailext attachLog: true, body: 'Deployment successful!', subject: 'Jenkins Pipeline - Success', to: 'kotasrharsha387@gmail.com'
+        }
+        failure {
+            echo 'Deployment failed!'
+            // Send failure email notification
+            emailext attachLog: true, body: 'Deployment failed. Please check Jenkins for details.', subject: 'Jenkins Pipeline - Failure', to: 'kotasrharsha387@gmail.com'
+        }
+    }
 ```
 
 * Now click on apply and build now to build the project 
 
 * Hence our python project is sucessfully deployed 
+
+* For every 5min the trigger will scan the repo made changes in repo and build.
+
+* After every sucess build a notification is sent to mail configure through email availble plugin and mail send to mail if it fails then send to mail again.
 
 ![Alt text](<Screenshot from 2023-11-27 23-10-29.png>)
